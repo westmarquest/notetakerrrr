@@ -7,10 +7,32 @@ body {
   align-items: center;
   height: 100vh;
   margin: 0;
+  flex-direction: column; /* Align items vertically */
 }
 
 /* Styling the heading with cursive font */
 h1 {
   font-family: cursive;
   text-align: center;
+  margin-bottom: 20px; /* Add margin bottom for spacing */
+}
+
+/* Styling the "Let's take some Notes" text */
+p {
+  text-align: center;
+}
+
+/* Styling the NOTES button */
+.notes-button {
+  display: inline-block;
+  padding: 10px 20px;
+  border: 2px solid #000; /* Border style */
+  border-radius: 5px; /* Rounded corners */
+  text-decoration: none; /* Remove underline */
+  color: #000; /* Text color */
+}
+
+/* Hover effect for the NOTES button */
+.notes-button:hover {
+  background-color: #f0f0f0; /* Background color on hover */
 }
