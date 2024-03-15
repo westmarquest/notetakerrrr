@@ -1,0 +1,16 @@
+/* landing.css */
+
+/* Centering everything on the page */
+body {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  margin: 0;
+}
+
+/* Styling the heading with cursive font */
+h1 {
+  font-family: cursive;
+  text-align: center;
+}
