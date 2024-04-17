@@ -7,8 +7,9 @@ body {
 }
 
 .header {
-  background-color: #333;
+  background-color: #5fb5d4;
   color: #fff;
+  height: 100px;
   padding: 10px;
   display: flex;
   justify-content: space-between;
@@ -65,5 +66,14 @@ body {
 }
 
 .note-details h2 {
+  margin-top: 0;
+}
+
+.note-Form {
+  flex: 3;
+  padding: 20px;
+}
+
+.note-Form h2 {
   margin-top: 0;
 }

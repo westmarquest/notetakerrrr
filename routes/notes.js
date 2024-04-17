@@ -1,53 +1,120 @@
-// notes.js
+// Function to show the new note form
+function showNewNoteForm() {
+  console.log("new note button clicked");
+  document.getElementById("newNoteForm").style.display = "block";
+  document
+    .getElementById("noteDetails")
+    .appendChild(document.getElementById("newNoteForm"));
+}
 
-// Function to create a new note input field
-function createNoteInput() {
-  // Create input elements for note title and text
-  const noteTitleInput = document.createElement("input");
-  noteTitleInput.type = "text";
-  noteTitleInput.placeholder = "Note Title";
+// Event listener to trigger the showNewNoteForm function when the "New Note" button is clicked
+document
+  .getElementById("showNewNoteForm")
+  .addEventListener("click", showNewNoteForm);
 
-  const noteTextInput = document.createElement("textarea");
-  noteTextInput.placeholder = "Note Text";
+// Function to hide the new note form
+// function hideNewNoteForm() {
+//   document.getElementById("showNewNoteForm").style.display = "none";
+// }
 
-  // Create save button
-  const saveButton = document.createElement("button");
-  saveButton.textContent = "Save";
-  saveButton.addEventListener("click", function () {
-    saveNote(noteTitleInput.value, noteTextInput.value);
+// Function to clear the form fields
+function clearForm() {
+  document.getElementById("noteTitle").value = "";
+  document.getElementById("noteText").value = "";
+}
+
+// Function to fetch and display existing notes
+function displayExistingNotes() {
+  fetch("/api/notes")
+    .then((response) => response.json())
+    .then((notes) => {
+      const notesList = document.getElementById("notesList");
+      notesList.innerHTML = ""; // Clear previous notes
+      notes.forEach((note) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add("note-item");
+        listItem.textContent = note.title;
+        listItem.dataset.id = note.id; // Store note ID as a data attribute
+        listItem.addEventListener("click", () => displayNoteDetails(note));
+        const deleteButton = document.createElement("span");
+        deleteButton.textContent = "🗑️";
+        deleteButton.classList.add("delete-button");
+        deleteButton.addEventListener("click", (event) =>
+          deleteNote(event, note.id)
+        );
+        listItem.appendChild(deleteButton);
+        notesList.appendChild(listItem);
+      });
+    })
+    .catch((error) => console.error("Error fetching notes:", error.message));
+}
+
+// Call the function to display existing notes when the page loads
+window.addEventListener("load", displayExistingNotes);
+
+// Function to handle form submission and save new note
+document
+  .getElementById("noteForm")
+  .addEventListener("submit", function (event) {
+    event.preventDefault(); // Prevent default form submission
+
+    // Get the values from the form fields
+    const noteTitle = document.getElementById("noteTitle").value;
+    const noteText = document.getElementById("noteText").value;
+
+    // Make a POST request to save the new note to the server
+    console.log("POST request URL:", "/api/notes");
+    fetch("/api/notes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title: noteTitle, text: noteText }),
+    })
+      .then((response) => response.json())
+      .then((newNote) => {
+        const listItem = document.createElement("li");
+        listItem.classList.add("note-item");
+        listItem.textContent = newNote.title;
+        listItem.dataset.id = newNote.id; // Store note ID as a data attribute
+        listItem.addEventListener("click", () => displayNoteDetails(newNote));
+        const deleteButton = document.createElement("span");
+        deleteButton.textContent = "🗑️";
+        deleteButton.classList.add("delete-button");
+        deleteButton.addEventListener("click", (event) =>
+          deleteNote(event, newNote.id)
+        );
+        listItem.appendChild(deleteButton);
+        document.getElementById("notesList").appendChild(listItem);
+        clearForm();
+      })
+      .catch((error) => console.error("Error saving note:", error));
   });
 
-  // Append input elements and save button to note details section
-  const noteDetails = document.getElementById("noteDetails");
-  noteDetails.innerHTML = ""; // Clear previous note details
-  noteDetails.appendChild(noteTitleInput);
-  noteDetails.appendChild(noteTextInput);
-  noteDetails.appendChild(saveButton);
+// Function to display note details when a note is clicked
+function displayNoteDetails(note) {
+  document.getElementById("noteTitle").textContent = note.title;
+  document.getElementById("noteText").textContent = note.text;
 }
 
-// Function to save a new note
-function saveNote(title, text) {
-  // Send a POST request to the server to save the new note
-  fetch("/api/notes", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({ title, text }),
+// Function to delete a note
+function deleteNote(event, id) {
+  event.stopPropagation(); // Prevent event from bubbling up
+  fetch(`/api/notes/${id}`, {
+    method: "DELETE",
   })
-    .then((response) => response.json())
-    .then((newNote) => {
-      // Display the new note in the existing notes list
-      const listItem = document.createElement("li");
-      listItem.textContent = newNote.title;
-      document.getElementById("notesList").appendChild(listItem);
-      // Clear the note details section
-      document.getElementById("noteDetails").innerHTML = "";
+    .then((response) => {
+      if (response.ok) {
+        const listItem = event.target.parentElement;
+        listItem.remove();
+        if (
+          document.getElementById("noteTitle").textContent ===
+          listItem.textContent
+        ) {
+          document.getElementById("noteTitle").textContent = "";
+          document.getElementById("noteText").textContent = "";
+        }
+      }
     })
-    .catch((error) => console.error("Error saving note:", error));
+    .catch((error) => console.error("Error deleting note:", error));
 }
-
-// Event listener for the "New Note" button
-document
-  .getElementById("newNoteButton")
-  .addEventListener("click", createNoteInput);

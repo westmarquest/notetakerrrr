@@ -6,22 +6,32 @@ const fs = require("fs");
 const path = require("path");
 
 // Route to retrieve existing notes
-router.get("/notes", (req, res) => {
+router.get("/api/notes", (req, res) => {
   // Read the db.json file to get existing notes
   fs.readFile(path.join(__dirname, "../db/db.json"), "utf8", (err, data) => {
     if (err) {
       console.error("Error reading file:", err);
       return res.status(500).json({ error: "Error reading notes" });
     }
-    // Parse the JSON data
-    const notes = JSON.parse(data);
+
+    let notes = [];
+    if (data) {
+      try {
+        // Parse the JSON data if it's not empty
+        notes = JSON.parse(data);
+      } catch (error) {
+        console.error("Error parsing JSON:", error);
+        return res.status(500).json({ error: "Error parsing JSON data" });
+      }
+    }
+
     // Send the notes as response
     res.json(notes);
   });
 });
 
 // Route to save a new note
-router.post("/notes", (req, res) => {
+router.post("/api/notes", (req, res) => {
   // Get the new note from the request body
   const newNote = req.body;
   // Read the db.json file to get existing notes
@@ -53,7 +63,7 @@ router.post("/notes", (req, res) => {
 });
 
 // Route to delete a note by ID
-router.delete("/notes/:id", (req, res) => {
+router.delete("/api/notes/:id", (req, res) => {
   const noteId = parseInt(req.params.id);
   // Read the db.json file to get existing notes
   fs.readFile(path.join(__dirname, "../db/db.json"), "utf8", (err, data) => {
