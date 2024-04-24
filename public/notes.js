@@ -12,10 +12,9 @@ document
   .getElementById("showNewNoteForm")
   .addEventListener("click", showNewNoteForm);
 
-// Function to hide the new note form
-// function hideNewNoteForm() {
-//   document.getElementById("showNewNoteForm").style.display = "none";
-// }
+// Get the values from the form fields
+const noteTitle = document.getElementById("noteTitle").value;
+const noteText = document.getElementById("noteText").value;
 
 // Function to clear the form fields
 function clearForm() {
@@ -29,19 +28,24 @@ function displayExistingNotes() {
     .then((response) => response.json())
     .then((notes) => {
       const notesList = document.getElementById("notesList");
-      notesList.innerHTML = ""; // Clear previous notes
       notes.forEach((note) => {
         const listItem = document.createElement("li");
         listItem.classList.add("note-item");
         listItem.textContent = note.title;
         listItem.dataset.id = note.id; // Store note ID as a data attribute
+
+        // Add event listener to note title to display note details
         listItem.addEventListener("click", () => displayNoteDetails(note));
+
         const deleteButton = document.createElement("span");
         deleteButton.textContent = "🗑️";
         deleteButton.classList.add("delete-button");
+
+        // Add event listener to delete button to delete the note
         deleteButton.addEventListener("click", (event) =>
           deleteNote(event, note.id)
         );
+
         listItem.appendChild(deleteButton);
         notesList.appendChild(listItem);
       });
@@ -58,9 +62,8 @@ document
   .addEventListener("submit", function (event) {
     event.preventDefault(); // Prevent default form submission
 
-    // Get the values from the form fields
-    const noteTitle = document.getElementById("noteTitle").value;
-    const noteText = document.getElementById("noteText").value;
+    // const noteTitleText = document.createTextNode(newNote.title);
+    // noteContent.appendChild(noteTitleText);
 
     // Make a POST request to save the new note to the server
     console.log("POST request URL:", "/api/notes");
@@ -69,7 +72,7 @@ document
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ title: noteTitle, text: noteText }),
+      body: JSON.stringify({ noteTitle, noteText }),
     })
       .then((response) => response.json())
       .then((newNote) => {
@@ -117,4 +120,16 @@ function deleteNote(event, id) {
       }
     })
     .catch((error) => console.error("Error deleting note:", error));
+}
+
+// Event listener to trigger the hideNewNoteForm function when the "Cancel" button is clicked
+document
+  .getElementById("cancelButton")
+  .addEventListener("click", hideNewNoteForm);
+
+// Function to hide the new note form
+function hideNewNoteForm() {
+  if (event.target.id === "cancelButton") {
+    document.getElementById("newNoteForm").style.display = "none";
+  }
 }

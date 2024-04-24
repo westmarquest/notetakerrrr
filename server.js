@@ -19,7 +19,6 @@ app.use(express.static("public"));
 app.use("/routes", express.static(path.join(__dirname, "routes")));
 
 // Define API routes
-app.use("/api/notes", apiRoutes);
 app.use("/api", apiRoutes);
 
 // Define HTML routes

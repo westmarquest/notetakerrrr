@@ -6,7 +6,7 @@ const fs = require("fs");
 const path = require("path");
 
 // Route to retrieve existing notes
-router.get("/api/notes", (req, res) => {
+router.get("/notes", (req, res) => {
   // Read the db.json file to get existing notes
   fs.readFile(path.join(__dirname, "../db/db.json"), "utf8", (err, data) => {
     if (err) {
@@ -31,21 +31,39 @@ router.get("/api/notes", (req, res) => {
 });
 
 // Route to save a new note
-router.post("/api/notes", (req, res) => {
-  // Get the new note from the request body
-  const newNote = req.body;
+router.post("/notes", (req, res) => {
+  console.log("Request Body:", req.body);
+
+  // Get the values of noteTitle and noteText from the request body
+  const { noteTitle, noteText } = req.body;
+
+  // Ensure both title and text are provided
+  if (!noteTitle || !noteText) {
+    return res
+      .status(400)
+      .json({ error: "Please provide both title and text for the note." });
+  }
+
   // Read the db.json file to get existing notes
   fs.readFile(path.join(__dirname, "../db/db.json"), "utf8", (err, data) => {
     if (err) {
       console.error("Error reading file:", err);
       return res.status(500).json({ error: "Error reading notes" });
     }
+
     // Parse the JSON data
     const notes = JSON.parse(data);
+
     // Assign a unique ID to the new note
-    newNote.id = Date.now();
+    const newNote = {
+      id: Date.now(),
+      title: noteTitle,
+      text: noteText,
+    };
+
     // Add the new note to the array of notes
     notes.push(newNote);
+
     // Write the updated notes back to the db.json file
     fs.writeFile(
       path.join(__dirname, "../db/db.json"),
@@ -63,7 +81,7 @@ router.post("/api/notes", (req, res) => {
 });
 
 // Route to delete a note by ID
-router.delete("/api/notes/:id", (req, res) => {
+router.delete("/notes/:id", (req, res) => {
   const noteId = parseInt(req.params.id);
   // Read the db.json file to get existing notes
   fs.readFile(path.join(__dirname, "../db/db.json"), "utf8", (err, data) => {
